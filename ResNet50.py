@@ -15,7 +15,7 @@ class Bottleneck(nn.Module):
         self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=width,
                                kernel_size=1, stride=1, bias=False)
         self.bn1 = nn.BatchNorm2d(width)
-
+        # resnet50 groups = 1
         self.conv2 = nn.Conv2d(in_channels=width, out_channels=width, groups=groups,
                                kernel_size=3, stride=stride, bias=False, padding=1)
         self.bn2 = nn.BatchNorm2d(width)
@@ -77,7 +77,7 @@ class ResNet(nn.Module):
         if self.include_top:
             self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
             self.dropout = nn.Dropout(p=dropout_prob)             # # 添加drop out
-            self.fc = nn.Linear(512 * block.expansion, num_classes)
+            self.fc = nn.Linear(512 * block.expansion, num_classes)     #expansion = 4
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -85,9 +85,9 @@ class ResNet(nn.Module):
 
     def _make_layer(self, block, channel, block_num, stride=1):
         downsample = None
-        if stride != 1 or self.in_channel != channel * block.expansion:
+        if stride != 1 or self.in_channel != channel * block.expansion: # expansion = 4
             downsample = nn.Sequential(
-                nn.Conv2d(self.in_channel, channel * block.expansion, kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(self.in_channel, channel * block.expansion, kernel_size=1, stride=stride, bias=False), # layer1 64->256
                 nn.BatchNorm2d(channel * block.expansion))
 
         layers = []
